@@ -1,0 +1,1 @@
+from .fire_sensor import FireSensorSettings

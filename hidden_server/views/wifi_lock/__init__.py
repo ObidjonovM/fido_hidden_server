@@ -1,0 +1,1 @@
+from .wifi_lock_views import wifi_lock

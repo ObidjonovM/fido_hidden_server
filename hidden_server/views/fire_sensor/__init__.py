@@ -1,0 +1,1 @@
+from .fire_sensor_views import fire_sensor
