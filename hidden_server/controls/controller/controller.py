@@ -87,7 +87,7 @@ class Controller:
 	def get_last_record(self):
 		result = {}
 		if self.__action_requested == '-':
-			get_result = self.__actions_table.get_last('log_id', {'serial_num' : self.__serial_num})
+			get_result = self.__actions_table.get_last('_id', {'serial_num' : self.__serial_num})
 			if get_result['success'] and len(get_result['data']) > 0:
 				self.__action_requested = get_result['data']['action_requested']
 				self.__requested_time = get_result['data']['requested_time']
@@ -155,12 +155,18 @@ class Controller:
 					}
 
 			action_time = datetime.now()
-			update_result = self.__actions_table.update_by_filter(['serial_num', 'requested_time'], {
-					'serial_num' : self.__serial_num,
-					'requested_time' : self.__requested_time,
-					'action_taken' : action_taken,
-					'action_time' : action_time
-				})
+			update_result = self.__actions_table.update_by_filter( 
+					{
+						'serial_num' : self.__serial_num,
+						'requested_time' : self.__requested_time
+					},
+					{"$set": 
+						{
+							'action_taken' : action_taken,
+							'action_time' : action_time
+						}
+					}
+				)
 
 			if update_result['success']:
 				self.__action_taken = action_taken

@@ -3,7 +3,7 @@
 class Socket3xSettings:
 
 	def __init__(self):
-		self.__slave_server = 'http://157.230.110.88:5000'
+		self.__slave_server = 'http://10.50.50.156:5000'
 		self.__measureDelay = '10'             # in milliseconds
 		self.__min_delay = '5'
 		self.__num_delays = '200'

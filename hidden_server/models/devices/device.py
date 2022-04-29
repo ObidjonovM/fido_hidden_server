@@ -59,7 +59,7 @@ class DeviceRequestTimesTable:
 
 	def update(self, prim_col, req_info):
 		result = crud.update(self.name, prim_col, req_info)
-		result['serial_num'] = req_info['serial_num']
+		result['serial_num'] = prim_col['serial_num']
 		return result
 
 

@@ -34,5 +34,5 @@ class ActionsTable:
 
 	def update_by_filter(self, filter_cols, action_info):
 		result = crud.update_by_filter(self.name, filter_cols, action_info)
-		result['serial_num'] = action_info['serial_num']
+		result['serial_num'] = filter_cols['serial_num']
 		return result

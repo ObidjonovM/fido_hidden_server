@@ -4,7 +4,7 @@
 class FireSensorSettings:
 
 	def __init__(self):
-		self.__slave_server = 'http://157.230.110.88:5000'
+		self.__slave_server = 'http://10.50.50.156:5000'
 		self.__measureDelay = '1000'             # in milliseconds
 		self.__connReistTrails = '10'
 		self.__maxGasVal = '100'

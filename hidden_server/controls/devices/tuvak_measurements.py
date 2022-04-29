@@ -158,7 +158,7 @@ class TuvakMeasurements:
 
 	def get_last_measurement(self):
 		if self.__soil_moist == '-' or self.__air_humid == '-' or self.__temp == '-':
-			get_result = self.__measurements_table.get_last('log_id', {'serial_num' : self.__serial_num})
+			get_result = self.__measurements_table.get_last('_id', {'serial_num' : self.__serial_num})
 
 			if get_result['success'] and len(get_result['data']) > 0:
 				self.__soil_moist = get_result['data']['soil_moist']

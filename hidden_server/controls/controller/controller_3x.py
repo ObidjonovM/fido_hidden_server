@@ -126,7 +126,7 @@ class Controller3x:
 		log_code = 0
 
 		if self.__no_record():
-			get_result = self.__actions_table.get_last('log_id', {'serial_num' : self.__serial_num})
+			get_result = self.__actions_table.get_last('_id', {'serial_num' : self.__serial_num})
 			success = get_result['success']
 			log_code = utls.record_log(get_result, 'get_current_state', 'crud_logs')
 
@@ -185,7 +185,7 @@ class Controller3x:
 
 			# prepare data for updating
 			action_time = datetime.now()
-			filters = ['serial_num']
+			filters = {'serial_num' : self.__serial_num}
 			data = {'serial_num' : self.__serial_num}
 			for k, v in actions_taken.items():
 				side = k.split('_')[-1]

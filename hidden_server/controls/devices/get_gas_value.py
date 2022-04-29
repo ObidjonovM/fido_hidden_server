@@ -61,7 +61,7 @@ class GetGasValue:
 
     def get_current_value(self):
         if self.__gas_value == '-' or self.__gas_value_time == '-':
-            get_result = self.__gas_value_table.get_last('log_id', {
+            get_result = self.__gas_value_table.get_last('_id', {
 					'serial_num' : self.__serial_num
 				})
 

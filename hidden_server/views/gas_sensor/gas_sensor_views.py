@@ -90,8 +90,7 @@ def from_device():
 	gas_val = float(params['params']['gas_val'])
 	a_gas_sensor = GasSensor(serial_num)
 	gas_sensors.load_to_device(a_gas_sensor)
-	print("*************params****************")
-	print(params)
+
 	# Update the last request received
 	update_req_res = a_gas_sensor.update_request_time()
 	if not update_req_res['success']:

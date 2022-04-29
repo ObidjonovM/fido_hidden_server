@@ -1,6 +1,9 @@
 import os
+from pymongo import MongoClient
 
-db_credentials = 'dbname=your_db user=your_login password=your_password'
+
+CLIENT = MongoClient("mongodb://localhost:27017/")
+HIDDEN_DB = CLIENT["your_db"]
 
 LOGS_PATH = 'logs'
 

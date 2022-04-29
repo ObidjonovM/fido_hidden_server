@@ -1,121 +1,73 @@
 from . import model_utils as utls
+from .. import config as cnfg
 
 
 def last_pk_value(table_name):
-    col_names = utls.get_column_names(table_name)
-    pk_col = col_names[0]
-    sql = f'SELECT log_id FROM {table_name} ORDER BY log_id DESC LIMIT 1'
-    result = utls.send_to_db(sql, None, True)
+    last_rec = cnfg.HIDDEN_DB[table_name].find_one(sort=[('_id', -1)])
+    if last_rec == None:
+        return 0
 
-    if not result['success']:
-        return {pk_col : -1}
-
-    if len(result['data']) == 0:
-        return {pk_col : 0}
-    
-    return {pk_col : result['data'][0][0]}
+    return last_rec['_id']
 
 
+@utls.execute_query
 def insert(table_name, info, generate_pk=True):
     if generate_pk:
-        pk, val = last_pk_value(table_name).popitem()       # getting the last value of PK column
-        sql = f'INSERT INTO {table_name} ({pk}, '
-        values = f'VALUES ({int(val) + 1}, '
-    else:
-        sql = f'INSERT INTO {table_name} ('
-        values = f'VALUES ('
+        last_id = last_pk_value(table_name)
+        info['_id'] = last_id + 1
+    res =  cnfg.HIDDEN_DB[table_name].insert_one(info)
 
-    for key in info.keys():
-        sql += key + ', '
-        values += f'%({key})s, '
-
-    sql = sql[:-2] + ')'
-    values = values[:-2] + ')'
-    sql = sql + values
-    return utls.send_to_db(sql, info, False)
+    return res
 
 
+@utls.execute_query
 def get(table_name, rec_dict):
-    col_names = utls.get_column_names(table_name)
-    cpy_rec_dict = rec_dict.copy()
-    k, v = cpy_rec_dict.popitem()
-    sql = f'SELECT * FROM {table_name} WHERE {k} = %({k})s'
-    result = utls.send_to_db(sql, {k : v}, True)
+    res = dict()
+    data = cnfg.HIDDEN_DB[table_name].find_one(rec_dict)
+    if data != None:
+        res = data
 
-    if result['success'] and len(result['data']) > 0:
-        result['data'] = utls.keyval_tuples2dict(col_names, result['data'][0])
-
-    return result
+    return res
 
 
+
+@utls.execute_query
 def get_last(table_name, target_col, rec_dict):
-    col_names = utls.get_column_names(table_name)
-    cpy_rec_dict = rec_dict.copy()
-    k, v = cpy_rec_dict.popitem()
-    sql = f'SELECT * FROM {table_name} WHERE {k} = %({k})s ORDER BY {target_col} DESC LIMIT 1'
-    result = utls.send_to_db(sql, {k : v}, True)
+    res = dict()
+    for i in cnfg.HIDDEN_DB[table_name].find(rec_dict).sort(target_col, -1).limit(1):
+        res = i
 
-    if result['success'] and len(result['data']) > 0:
-        result['data'] = utls.keyval_tuples2dict(col_names, result['data'][0])
-
-    return result
+    return res
 
 
+@utls.execute_query
 def get_all_device_records(table_name, device_info):
-    col_names = utls.get_column_names(table_name)
-    cpy_device_info = device_info.copy()
-    k, v = cpy_device_info.popitem()
-    sql = f'SELECT * FROM {table_name} WHERE {k} = %({k})s '
-    result = utls.send_to_db(sql, {k : v}, True)
+    res = []
+    for i in cnfg.HIDDEN_DB[table_name].find(device_info):
+        res.append(i)
 
-    if result['success']:
-        result['data'] = utls.list_tuples2tuple_lists(result['data'])
-        result['data'] = utls.keyval_tuples2dict(col_names, result['data'])
-
-    return result
+    return res
 
 
+@utls.execute_query
 def get_all_in_date(table_name, datetime_col, device_info, date_range):
-    col_names = utls.get_column_names(table_name)
-    cpy_device_info = device_info.copy()
-    k, v = cpy_device_info.popitem()
-    sql = f'SELECT * FROM {table_name} WHERE {k} = %({k})s AND '
-    sql += f'{datetime_col} BETWEEN %(start)s AND %(end)s'
-    
-    result = utls.send_to_db(
-            sql, 
-            {k : v, 'start' : date_range['start'], 'end' : date_range['end']}, 
-            True
-        )
+    res = []
+    device_info[datetime_col] = {
+            "$gte": date_range['start'],
+            "$lt": date_range['end']
+        }
+    for i in cnfg.HIDDEN_DB[table_name].find(device_info):
+        res.append(i)
 
-    if result['success']:
-        result['data'] = utls.list_tuples2tuple_lists(result['data'])
-        result['data'] = utls.keyval_tuples2dict(col_names, result['data'])
-
-    return result
+    return res
 
 
+@utls.execute_query
 def update(table_name, prim_col, info):
-    sql = f'UPDATE {table_name} SET '
-    for key in info.keys():
-        if key != prim_col:
-            sql += f'{key} = %({key})s, '
-
-    sql = sql[:-2] + f' WHERE {prim_col} = %({prim_col})s'
-
-    return utls.send_to_db(sql, info, False)
+    res = cnfg.HIDDEN_DB[table_name].update_one(prim_col, info)
+    return res.modified_count
 
 
+@utls.execute_query
 def update_by_filter(table_name, filter_cols, info):
-    sql = f'UPDATE {table_name} SET '
-    for key in info.keys():
-        sql += f'{key} = %({key})s, '
-
-    sql = sql[:-2] + ' WHERE '
-
-    for col in filter_cols:
-        sql += f'{col} = %({col})s AND '
-
-    sql = sql[:-5]
-
-    return utls.send_to_db(sql, info, False)
+    return cnfg.HIDDEN_DB[table_name].update_one(filter_cols, info)

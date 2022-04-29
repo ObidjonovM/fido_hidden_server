@@ -87,7 +87,7 @@ class Device:
 
 	def get_current_state(self):
 		if self.__state == '-' or self.__state_change_time == '-':
-			get_result = self.__state_table.get_last('log_id', {
+			get_result = self.__state_table.get_last('_id', {
 					'serial_num' : self.__serial_num
 				})
 
@@ -190,11 +190,11 @@ class Device:
 		# successfully added if was not in the db, now we can synchronize instance and db values
 		request_time = datetime.now()
 		self.__last_request_time = request_time
-		update_result = self.__request_times_table.update('serial_num', {
-				'serial_num' : self.__serial_num,
-				'request_time' : request_time
-			})
-		
+		update_result = self.__request_times_table.update(
+				{'serial_num' : self.__serial_num},
+				{"$set": {'request_time' : request_time}}
+			)
+
 		return {
 			'success' : update_result['success'],
 			'log_code' : utls.record_log(update_result, 'update_request_time', 'crud_logs')

@@ -92,7 +92,8 @@ def requested_actions_in_range():
 
 @socket.route('/from_device', methods=['POST'])
 def from_device():
-	params = utls.get_input_params(request.data, ['serial_num', 'state'])
+	params = utls.get_input_params(request.data, ['serial_num', 'state', 'slave_server',
+												'measurement_delay', 'conn_reist_trails'])
 	serial_num = params['params']['serial_num']
 	state = params['params']['state']
 	a_socket = Socket(serial_num)

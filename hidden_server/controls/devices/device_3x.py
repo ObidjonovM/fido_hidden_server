@@ -104,7 +104,7 @@ class Device3x:
 
 	def get_current_states(self):
 		if self.__no_record():
-			get_result = self.__state_table.get_last('log_id', {
+			get_result = self.__state_table.get_last('_id', {
 					'serial_num' : self.__serial_num
 				})
 
@@ -213,10 +213,10 @@ class Device3x:
 		# successfully added if was not in the db, now we can synchronize instance and db values
 		request_time = datetime.now()
 		self.__last_request_time = request_time
-		update_result = self.__request_times_table.update('serial_num', {
-				'serial_num' : self.__serial_num,
-				'request_time' : request_time
-			})
+		update_result = self.__request_times_table.update(
+				{'serial_num' : self.__serial_num},
+				{'request_time' : request_time}
+			)
 		
 		return {
 			'success' : update_result['success'],

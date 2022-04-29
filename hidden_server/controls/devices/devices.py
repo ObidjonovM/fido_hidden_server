@@ -43,13 +43,16 @@ class Devices:
 		for k,v in rf_params.items():
 			ks = k.decode('utf-8')
 			vs = v.decode('utf-8')
-			if ks.endswith('_time'):
-				try:
-					params[ks] = datetime.fromisoformat(vs)
-				except ValueError:
-					params[ks] = 'Not ISO format'
-			elif ks.endswith('_samples'):
-				params[ks] = self.__str2list(vs)
+			if vs != "-":
+				if ks.endswith('_time'):
+					try:
+						params[ks] = datetime.fromisoformat(vs)
+					except ValueError:
+						params[ks] = 'Not ISO format'
+				elif ks.endswith('_samples'):
+					params[ks] = self.__str2list(vs)
+				else:
+					params[ks] = vs
 			else:
 				params[ks] = vs
 
